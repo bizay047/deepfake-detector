@@ -1,12 +1,11 @@
 import os
 import io
-import uvicorn
 import numpy as np
 import tensorflow as tf
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from PIL import Image
 
 app = FastAPI()
@@ -19,59 +18,71 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load the model
+# Load model
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(BASE_DIR, 'deepfake_mobilenetv2_model.h5')
+model_path = os.path.join(BASE_DIR, "deepfake_mobilenetv2_model.h5")
+
+model = None
 try:
     model = tf.keras.models.load_model(model_path)
-    print("Model loaded successfully.")
+    print("✅ Model loaded successfully")
 except Exception as e:
-    print(f"Error loading model: {e}")
+    print(f"❌ Error loading model: {e}")
 
-# Mount static files
+# Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Root route → load frontend
 @app.get("/")
 async def read_index():
     return FileResponse("static/index.html")
 
+# Health check (important for Render)
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+# Prediction API
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    # 1. Read and open (Matches Streamlit)
-    image_bytes = await file.read()
-    image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
-    
-    # 2. Resize → Array (raw float32 – no preprocess_input needed for this model)
-    image = image.resize((224, 224))
-    img_array = np.array(image, dtype=np.float32)
-    img_array = np.expand_dims(img_array, axis=0)  # Shape: (1, 224, 224, 3)
-    
-    # 3. Predict
-    prediction = model.predict(img_array)
-    score = float(prediction[0][0])
-    
-    # Debug: Watch your terminal
-    print(f"DEBUG - Raw Prediction Score: {score}")
-    
-    # ── Classification — matches the original Streamlit convention ────────────
-    # Model trained with sigmoid output:  1.0 = Real face,  0.0 = Fake / AI-generated
-    # score > 0.5  →  Real   (confidence = how high the score is, i.e. score × 100)
-    # score ≤ 0.5  →  Fake   (confidence = how far below 0.5 it is, (1 − score) × 100)
-    if score > 0.5:
-        label      = "Real"
-        confidence = round(score * 100, 1)           # e.g. 0.90 → 90 %
-    else:
-        label      = "Fake"
-        confidence = round((1.0 - score) * 100, 1)  # e.g. 0.03 → 97 %
+    try:
+        if model is None:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Model not loaded"}
+            )
 
-    print(f"DEBUG  score={score:.4f}  →  {label}  ({confidence}%)")
+        # Read image
+        image_bytes = await file.read()
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
-    return {
-        "label":     label,
-        "confidence": confidence,
-        "raw_score":  round(score, 4)
-    }
+        # Preprocess
+        image = image.resize((224, 224))
+        img_array = np.array(image, dtype=np.float32) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+        # Predict
+        prediction = model.predict(img_array)
+        score = float(prediction[0][0])
+
+        # Classification
+        if score > 0.5:
+            label = "Real"
+            confidence = round(score * 100, 1)
+        else:
+            label = "Fake"
+            confidence = round((1.0 - score) * 100, 1)
+
+        print(f"DEBUG → score={score:.4f}, label={label}")
+
+        return {
+            "label": label,
+            "confidence": confidence,
+            "raw_score": round(score, 4)
+        }
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
