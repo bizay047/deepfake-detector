@@ -18,8 +18,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load model
+# Base directory (IMPORTANT for Render)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Load model
 model_path = os.path.join(BASE_DIR, "deepfake_mobilenetv2_model.h5")
 
 model = None
@@ -29,15 +31,19 @@ try:
 except Exception as e:
     print(f"❌ Error loading model: {e}")
 
-# Serve static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Serve static files (CSS, JS, images)
+app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(BASE_DIR, "static")),
+    name="static"
+)
 
-# Root route → load frontend
+# Root route → load index.html from root
 @app.get("/")
 async def read_index():
-    return FileResponse("static/index.html")
+    return FileResponse(os.path.join(BASE_DIR, "index.html"))
 
-# Health check (important for Render)
+# Health check (Render uses this sometimes)
 @app.get("/health")
 async def health():
     return {"status": "ok"}
@@ -65,7 +71,7 @@ async def predict(file: UploadFile = File(...)):
         prediction = model.predict(img_array)
         score = float(prediction[0][0])
 
-        # Classification
+        # Classification logic
         if score > 0.5:
             label = "Real"
             confidence = round(score * 100, 1)
