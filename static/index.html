@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered deepfake detection using MobileNetV2 - FastAPI + TensorFlow backend">
+    <title>Deepfake Detector</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ── HEADER / NAV ── -->
+<header id="site-header">
+    <div class="header-inner">
+        <div class="logo">
+            <span class="logo-icon">🔍</span>
+            <h1>Deepfake Detector</h1>
+        </div>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="#about" class="nav-link">About</a>
+            <a href="#detection" class="nav-link">Detect</a>
+            <a href="#samples" class="nav-link">Samples</a>
+        </nav>
+
+        <div class="header-actions">
+            <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+            <button class="hamburger" id="hamburger" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile nav drawer -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="#about"     class="mobile-link" onclick="closeNav()">About</a>
+        <a href="#detection" class="mobile-link" onclick="closeNav()">Detect</a>
+        <a href="#samples"   class="mobile-link" onclick="closeNav()">Samples</a>
+    </div>
+</header>
+
+<main>
+
+<!-- ── ABOUT ── -->
+<section id="about" class="section">
+    <div class="section-inner about-inner">
+        <div class="about-text">
+            <h2 class="section-title">About the System</h2>
+            <p>This detection framework uses <strong>Transfer Learning</strong> on the <strong>MobileNetV2</strong> architecture, identifying subtle artifacts in AI-generated faces.</p>
+            <p>Images are processed by a <strong>FastAPI + TensorFlow</strong> Python backend — fast, private, and server-side.</p>
+            <p>Our goal is to promote <strong>digital transparency</strong> and trust in media.</p>
+        </div>
+        <div class="about-stats">
+            <div class="stat-card">
+                <span class="stat-num">MobileNetV2</span>
+                <span class="stat-label">Architecture</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num">TensorFlow</span>
+                <span class="stat-label">Backend</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num">224×224</span>
+                <span class="stat-label">Input Size</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── DETECTION TOOL ── -->
+<section id="detection" class="section">
+    <div class="section-inner">
+        <h2 class="section-title text-center">Detection Tool</h2>
+        <p class="section-hint text-center">Upload any face image or double-click a gallery sample below</p>
+
+        <div class="detection-layout">
+            <!-- Drop Zone -->
+            <div class="drop-column">
+                <div id="dropZone" class="drop-zone" role="button" tabindex="0" aria-label="Upload image">
+                    <div class="drop-icon">📂</div>
+                    <p class="drop-main">Drag &amp; Drop here</p>
+                    <p class="drop-sub">or <strong>click</strong> to browse files</p>
+                    <input type="file" id="imageUpload" accept="image/*" hidden>
+                </div>
+            </div>
+
+            <!-- Preview + Result Column -->
+            <div class="result-column">
+                <div class="preview-wrap" id="previewWrap">
+                    <img id="preview" src="#" alt="Upload Preview">
+                    <p class="preview-hint" id="previewHint">Your image preview will appear here</p>
+                </div>
+
+                <button id="detectBtn" class="detect-btn">
+                    <i class="fas fa-search"></i> Analyze Image
+                </button>
+
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── GALLERY SAMPLES ── -->
+<section id="samples" class="section">
+    <div class="section-inner">
+        <h2 class="section-title text-center">Dataset Samples</h2>
+        <p class="section-hint text-center">💡 Double-click any image to load it into the detection tool</p>
+
+        <div class="gallery">
+            <div class="sample-card"><img src="/static/0AFCORCTG3.jpg" alt="Sample 1" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/00048.jpg"       alt="Sample 2" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/0AKOB1K3ZH.jpg" alt="Sample 3" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/0AMO1SB5CD.jpg" alt="Sample 4" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/00412.jpg"       alt="Sample 5" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/0BCKW9HHGW.jpg" alt="Sample 6" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/00094.jpg"       alt="Sample 7" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/00200.jpg"       alt="Sample 8" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/0BW2JN75OL.jpg" alt="Sample 9" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/0C824V7N5P.jpg"  alt="Sample 10" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/00279.jpg"       alt="Sample 11" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/00336.jpg"       alt="Sample 12" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/0DG6WQSN05.jpg" alt="Sample 13" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/00QZ9OQ733.jpg" alt="Sample 14" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/00204.jpg"       alt="Sample 15" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/00256.jpg"       alt="Sample 16" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/00S2D5CDKQ.jpg" alt="Sample 17" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/00Y1BXXWM2.jpg" alt="Sample 18" loading="lazy"><p class="sample-label fake">Fake</p></div>
+            <div class="sample-card"><img src="/static/00059.jpg"       alt="Sample 19" loading="lazy"><p class="sample-label real">Real</p></div>
+            <div class="sample-card"><img src="/static/00089.jpg"       alt="Sample 20" loading="lazy"><p class="sample-label fake">Fake</p></div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-col">
+            <h3 class="footer-heading">About Us</h3>
+            <p>AI Deepfake Detection System</p>
+            <p>KIIT University, Bhubaneswar</p>
+            <p>Odisha, KIIT ROAD 751024</p>
+        </div>
+        <div class="footer-col">
+            <h3 class="footer-heading">Quick Links</h3>
+            <ul>
+                <li><a href="#about">About the Project</a></li>
+                <li><a href="#detection">Try Detection</a></li>
+                <li><a href="#samples">Dataset Samples</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3 class="footer-heading">Connect</h3>
+            <div class="social-icons">
+                <a href="#" aria-label="Website"><i class="fas fa-globe"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 Deepfake Detection Project — KIIT University</p>
+</footer>
+
+<script src="/static/script.js"></script>
+</body>
+</html>

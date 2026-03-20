@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+.venv/
+env/
+.env/
+
+# Environment variables
+.env
+*.env
+
+# Debug / temp files
+debug_*.txt
+debug_scores.py
+debug_input.jpg
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Logs
+*.log
+logs/
+
+# TensorFlow / Keras
+*.keras
+# Uncomment the line below if you want to exclude the model (>25 MB)
+# deepfake_mobilenetv2_model.h5
+
+# Node (if ever used)
+node_modules/
